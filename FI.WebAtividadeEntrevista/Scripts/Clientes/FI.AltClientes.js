@@ -10,7 +10,13 @@ $(document).ready(function () {
         $('#formCadastro #Cidade').val(obj.Cidade);
         $('#formCadastro #Logradouro').val(obj.Logradouro);
         $('#formCadastro #Telefone').val(obj.Telefone);
+        $('#formCadastro #CPF').val(obj.CPF);
     }
+
+    $('#CPF').on('input', function () {
+        var valor = $(this).val();
+        $(this).val(mascaraCPF(valor));
+    });
 
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
@@ -27,7 +33,8 @@ $(document).ready(function () {
                 "Estado": $(this).find("#Estado").val(),
                 "Cidade": $(this).find("#Cidade").val(),
                 "Logradouro": $(this).find("#Logradouro").val(),
-                "Telefone": $(this).find("#Telefone").val()
+                "Telefone": $(this).find("#Telefone").val(),
+                "CPF": $(this).find("#CPF").val(),
             },
             error:
             function (r) {
@@ -69,4 +76,22 @@ function ModalDialog(titulo, texto) {
 
     $('body').append(texto);
     $('#' + random).modal('show');
+}
+
+function mascaraCPF(cpf) {
+    cpf = cpf.replace(/\D/g, "");
+
+    if (cpf.length <= 3)
+        return cpf;
+
+    if (cpf.length <= 6)
+        return cpf.replace(/(\d{3})(\d{0,})/, "$1.$2");
+
+    if (cpf.length <= 9)
+        return cpf.replace(/(\d{3})(\d{3})(\d{0,})/, "$1.$2.$3");
+
+    if (cpf.length <= 10)
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{0,})/, "$1.$2.$3-$4");
+
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }

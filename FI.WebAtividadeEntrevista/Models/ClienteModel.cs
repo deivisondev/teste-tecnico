@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FI.WebAtividadeEntrevista.Validations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -67,5 +68,10 @@ namespace WebAtividadeEntrevista.Models
         /// </summary>
         public string Telefone { get; set; }
 
+        /// <summary>
+        /// CPF
+        /// </summary>
+        [CPFValidation(ErrorMessage = "Digite um CPF válido")]
+        public string CPF { get; set; }
     }    
 }

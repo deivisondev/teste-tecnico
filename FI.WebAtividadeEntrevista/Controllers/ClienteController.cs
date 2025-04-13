@@ -25,22 +25,24 @@ namespace WebAtividadeEntrevista.Controllers
         [HttpPost]
         public JsonResult Incluir(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-            
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
+                BoCliente bo = new BoCliente();
 
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
-            }
-            else
-            {
-                
+                if (!this.ModelState.IsValid)
+                {
+                    List<string> erros = (from item in ModelState.Values
+                                          from error in item.Errors
+                                          select error.ErrorMessage).ToList();
+
+                    throw new Exception(string.Join(Environment.NewLine, erros));
+                }
+
+                if (bo.VerificarExistencia(model.CPF))
+                    throw new Exception("Já existe um cadastro com este CPF");
+
                 model.Id = bo.Incluir(new Cliente()
-                {                    
+                {
                     CEP = model.CEP,
                     Cidade = model.Cidade,
                     Email = model.Email,
@@ -49,30 +51,42 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = model.Nacionalidade,
                     Nome = model.Nome,
                     Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
+                    Telefone = model.Telefone,
+                    CPF = model.CPF,
                 });
 
-           
+
                 return Json("Cadastro efetuado com sucesso");
+            }
+            catch(Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message);
             }
         }
 
         [HttpPost]
         public JsonResult Alterar(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-       
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
+                BoCliente bo = new BoCliente();
 
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
-            }
-            else
-            {
+                if (!this.ModelState.IsValid)
+                {
+                    List<string> erros = (from item in ModelState.Values
+                                          from error in item.Errors
+                                          select error.ErrorMessage).ToList();
+
+
+                    throw new Exception(string.Join(Environment.NewLine, erros));
+                }
+
+                Cliente cliente = bo.Consultar(model.Id);
+
+                if (cliente.CPF != model.CPF && bo.VerificarExistencia(model.CPF))
+                    throw new Exception("Já existe um cadastro com este CPF");
+
                 bo.Alterar(new Cliente()
                 {
                     Id = model.Id,
@@ -84,10 +98,16 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = model.Nacionalidade,
                     Nome = model.Nome,
                     Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone
+                    Telefone = model.Telefone,
+                    CPF = model.CPF
                 });
-                               
+
                 return Json("Cadastro alterado com sucesso");
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(ex.Message);
             }
         }
 
@@ -111,10 +131,11 @@ namespace WebAtividadeEntrevista.Controllers
                     Nacionalidade = cliente.Nacionalidade,
                     Nome = cliente.Nome,
                     Sobrenome = cliente.Sobrenome,
-                    Telefone = cliente.Telefone
+                    Telefone = cliente.Telefone,
+                    CPF = cliente.CPF
                 };
 
-            
+
             }
 
             return View(model);
