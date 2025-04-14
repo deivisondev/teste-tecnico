@@ -27,7 +27,8 @@ namespace WebAtividadeEntrevista.Controllers
         {
             try
             {
-                BoCliente bo = new BoCliente();
+                BoCliente boCliente = new BoCliente();
+                BoBeneficiario boBeneficiario = new BoBeneficiario();
 
                 if (!this.ModelState.IsValid)
                 {
@@ -38,10 +39,16 @@ namespace WebAtividadeEntrevista.Controllers
                     throw new Exception(string.Join(Environment.NewLine, erros));
                 }
 
-                if (bo.VerificarExistencia(model.CPF))
+                if (boCliente.VerificarExistencia(model.CPF))
                     throw new Exception("Já existe um cadastro com este CPF");
 
-                model.Id = bo.Incluir(new Cliente()
+                foreach (var beneficiario in model.Beneficiarios)
+                {
+                    if (model.CPF == beneficiario.CPF)
+                        throw new Exception("O CPF do cliente não pode ser igual ao a um beneficiario atrelado");
+                }
+
+                model.Id = boCliente.Incluir(new Cliente()
                 {
                     CEP = model.CEP,
                     Cidade = model.Cidade,
@@ -55,10 +62,19 @@ namespace WebAtividadeEntrevista.Controllers
                     CPF = model.CPF,
                 });
 
+                foreach (var beneficiario in model.Beneficiarios)
+                {
+                    boBeneficiario.Incluir(new Beneficiario()
+                    {
+                        CPF = beneficiario.CPF,
+                        Nome = beneficiario.Nome,
+                        IdCliente = model.Id
+                    });
+                }
 
                 return Json("Cadastro efetuado com sucesso");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Response.StatusCode = 400;
                 return Json(ex.Message);
@@ -70,7 +86,8 @@ namespace WebAtividadeEntrevista.Controllers
         {
             try
             {
-                BoCliente bo = new BoCliente();
+                BoCliente boCliente = new BoCliente();
+                BoBeneficiario boBeneficiario = new BoBeneficiario();
 
                 if (!this.ModelState.IsValid)
                 {
@@ -82,12 +99,35 @@ namespace WebAtividadeEntrevista.Controllers
                     throw new Exception(string.Join(Environment.NewLine, erros));
                 }
 
-                Cliente cliente = bo.Consultar(model.Id);
+                Cliente cliente = boCliente.Consultar(model.Id);
 
-                if (cliente.CPF != model.CPF && bo.VerificarExistencia(model.CPF))
+                if (cliente.CPF != model.CPF && boCliente.VerificarExistencia(model.CPF))
                     throw new Exception("Já existe um cadastro com este CPF");
 
-                bo.Alterar(new Cliente()
+                foreach (var beneficiario in model.Beneficiarios)
+                {
+                    if (model.CPF == beneficiario.CPF)
+                        throw new Exception("O CPF do cliente não pode ser igual ao a um beneficiario atrelado");
+
+                    bool existe = boBeneficiario.VerificarExistencia(beneficiario.CPF, model.Id);
+
+                    if (existe)
+                    {
+                        string mensagem = "Já existe um beneficiário com o CPF " + beneficiario.CPF;
+
+                        if (beneficiario.Id != 0)
+                        {
+                            Beneficiario ben = boBeneficiario.Consultar(beneficiario.Id);
+
+                            if (beneficiario.CPF != ben.CPF)
+                                throw new Exception(mensagem);
+                        }
+                        else
+                            throw new Exception(mensagem);
+                    }
+                }
+
+                boCliente.Alterar(new Cliente()
                 {
                     Id = model.Id,
                     CEP = model.CEP,
@@ -102,6 +142,34 @@ namespace WebAtividadeEntrevista.Controllers
                     CPF = model.CPF
                 });
 
+                foreach (var beneficiario in model.Beneficiarios)
+                {
+                    if (beneficiario.Id != 0)
+                    {
+                        boBeneficiario.Alterar(new Beneficiario()
+                        {
+                            Id = beneficiario.Id,
+                            Nome = beneficiario.Nome,
+                            CPF = beneficiario.CPF,
+                            IdCliente = beneficiario.IdCliente
+                        });
+                    }
+                    else
+                    {
+                        boBeneficiario.Incluir(new Beneficiario()
+                        {
+                            Nome = beneficiario.Nome,
+                            CPF = beneficiario.CPF,
+                            IdCliente = model.Id
+                        });
+                    }
+                }
+
+                foreach (var id in model.BeneficiariosDeletados)
+                {
+                    boBeneficiario.Excluir(id);
+                }
+
                 return Json("Cadastro alterado com sucesso");
             }
             catch (Exception ex)
@@ -115,10 +183,14 @@ namespace WebAtividadeEntrevista.Controllers
         public ActionResult Alterar(long id)
         {
             BoCliente bo = new BoCliente();
-            Cliente cliente = bo.Consultar(id);
+            BoBeneficiario boBeneficiario = new BoBeneficiario();
             Models.ClienteModel model = null;
 
-            if (cliente != null)
+            Cliente cliente = bo.Consultar(id);
+            List<Beneficiario> beneficiarios = boBeneficiario.ListarPorIdCliente(id);
+            List<long> beneficiariosDeletados = new List<long>();
+
+            if (beneficiarios != null && cliente != null)
             {
                 model = new ClienteModel()
                 {
@@ -132,10 +204,16 @@ namespace WebAtividadeEntrevista.Controllers
                     Nome = cliente.Nome,
                     Sobrenome = cliente.Sobrenome,
                     Telefone = cliente.Telefone,
-                    CPF = cliente.CPF
+                    CPF = cliente.CPF,
+                    Beneficiarios = beneficiarios.Select((beneficiario) => new BeneficiarioModel()
+                    {
+                        Id = beneficiario.Id,
+                        Nome = beneficiario.Nome,
+                        CPF = beneficiario.CPF,
+                        IdCliente = beneficiario.IdCliente
+                    }).ToList(),
+                    BeneficiariosDeletados = beneficiariosDeletados
                 };
-
-
             }
 
             return View(model);

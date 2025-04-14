@@ -12,6 +12,12 @@ namespace WebAtividadeEntrevista.Models
     /// </summary>
     public class ClienteModel
     {
+        public ClienteModel()
+        {
+            Beneficiarios = new List<BeneficiarioModel>();
+            BeneficiariosDeletados = new List<long>();
+        }
+
         public long Id { get; set; }
         
         /// <summary>
@@ -73,5 +79,9 @@ namespace WebAtividadeEntrevista.Models
         /// </summary>
         [CPFValidation(ErrorMessage = "Digite um CPF válido")]
         public string CPF { get; set; }
+
+        public List<BeneficiarioModel> Beneficiarios { get; set; }
+
+        public List<long> BeneficiariosDeletados { get; set; }
     }    
 }

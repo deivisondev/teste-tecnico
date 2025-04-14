@@ -56,6 +56,15 @@ namespace FI.AtividadeEntrevista.BLL
         }
 
         /// <summary>
+        /// Lista os beneficiarios por IdCliente
+        /// </summary>
+        public List<DML.Beneficiario> ListarPorIdCliente(long IdCliente)
+        {
+            DAL.DaoBeneficiario ben = new DAL.DaoBeneficiario();
+            return ben.ListarPorIdCliente(IdCliente);
+        }
+
+        /// <summary>
         /// Lista os beneficiarios
         /// </summary>
         public List<DML.Beneficiario> Pesquisa(int iniciarEm, int quantidade, string campoOrdenacao, bool crescente, out int qtd)
@@ -69,10 +78,10 @@ namespace FI.AtividadeEntrevista.BLL
         /// </summary>
         /// <param name="CPF"></param>
         /// <returns></returns>
-        public bool VerificarExistencia(string CPF)
+        public bool VerificarExistencia(string CPF, long id)
         {
             DAL.DaoBeneficiario ben = new DAL.DaoBeneficiario();
-            return ben.VerificarExistencia(CPF);
+            return ben.VerificarExistencia(CPF, id);
         }
     }
 }

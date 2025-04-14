@@ -1,6 +1,12 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
+    var beneficiarios = [];
+
     $('#CPF').on('input', function () {
+        var valor = $(this).val();
+        $(this).val(mascaraCPF(valor));
+    });
+
+    $('#CPFBeneficiario').on('input', function () {
         var valor = $(this).val();
         $(this).val(mascaraCPF(valor));
     });
@@ -20,7 +26,8 @@ $(document).ready(function () {
                 "Cidade": $(this).find("#Cidade").val(),
                 "Logradouro": $(this).find("#Logradouro").val(),
                 "Telefone": $(this).find("#Telefone").val(),
-                "CPF": $(this).find("#CPF").val()
+                "CPF": $(this).find("#CPF").val(),
+                "Beneficiarios": beneficiarios
             },
             error:
                 function (r) {
@@ -31,13 +38,71 @@ $(document).ready(function () {
                 },
             success:
                 function (r) {
-                    ModalDialog("Sucesso!", r)
+                    ModalDialog("Sucesso!", r);
                     $("#formCadastro")[0].reset();
+                    beneficiarios = [];
+                    atualizarTabela();
                 }
         });
-    })
+    });
 
-})
+    function atualizarTabela() {
+        var tbody = $('#tabelaBeneficiarios tbody');
+        tbody.empty();
+        $.each(beneficiarios, function (index, beneficiario) {
+            var tr = $('<tr>');
+            tr.append('<td>' + beneficiario.cpf + '</td>');
+            tr.append('<td>' + beneficiario.nome + '</td>');
+            tr.append('<td><button class="btn btn-sm btn-primary alterar" data-index="' + index + '">Alterar</button> <button class="btn btn-sm btn-danger excluir" data-index="' + index + '">Excluir</button></td>');
+            tbody.append(tr);
+        });
+    }
+
+    function verificarCpfExistente(cpf) {
+        if (cpf === $('#formCadastro').find("#CPF").val()) {
+            return true;
+        }
+
+        return beneficiarios.some(function (beneficiario) {
+            return beneficiario.cpf === cpf;
+        });
+    }
+
+    $('#incluirBeneficiario').click(function () {
+        var cpf = $('#CPFBeneficiario').val();
+        var nome = $('#NomeBeneficiario').val().trim();
+
+        if (verificarCpfExistente(cpf)) {
+            alert('Este CPF já foi adicionado como cliente ou beneficiário.');
+            return;
+        }
+
+        if (cpf.length === 14 && nome !== "") {
+            beneficiarios.push({ cpf: cpf, nome: nome });
+            atualizarTabela();
+            $('#CPFBeneficiario').val('');
+            $('#NomeBeneficiario').val('');
+        } else {
+            alert('CPF e Nome são obrigatórios.');
+        }
+    });
+
+    $('#tabelaBeneficiarios').on('click', '.alterar', function () {
+        var index = $(this).data('index');
+        var beneficiario = beneficiarios[index];
+
+        $('#CPFBeneficiario').val(beneficiario.cpf);
+        $('#NomeBeneficiario').val(beneficiario.nome);
+        beneficiarios.splice(index, 1);
+        atualizarTabela();
+    });
+
+    $('#tabelaBeneficiarios').on('click', '.excluir', function () {
+        var index = $(this).data('index');
+        beneficiarios.splice(index, 1);
+        atualizarTabela();
+    });
+});
 
 function ModalDialog(titulo, texto) {
     var random = Math.random().toString().replace('.', '');

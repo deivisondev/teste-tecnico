@@ -37,11 +37,12 @@ namespace FI.AtividadeEntrevista.DAL
             return cli.FirstOrDefault();
         }
 
-        internal bool VerificarExistencia(string CPF)
+        internal bool VerificarExistencia(string CPF, long IdCliente)
         {
             List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
 
             parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", CPF));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IdCliente", IdCliente));
 
             DataSet ds = base.Consultar("FI_SP_VerificaBeneficiario", parametros);
 
@@ -77,6 +78,18 @@ namespace FI.AtividadeEntrevista.DAL
             parametros.Add(new System.Data.SqlClient.SqlParameter("Id", 0));
 
             DataSet ds = base.Consultar("FI_SP_ConsBeneficiario", parametros);
+            List<DML.Beneficiario> cli = Converter(ds);
+
+            return cli;
+        }
+
+        internal List<DML.Beneficiario> ListarPorIdCliente(long IdCliente)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IdCliente", IdCliente));
+
+            DataSet ds = base.Consultar("FI_SP_ConsBeneficiarioPorIdCliente", parametros);
             List<DML.Beneficiario> cli = Converter(ds);
 
             return cli;
