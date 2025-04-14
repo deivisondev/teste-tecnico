@@ -32,7 +32,7 @@
             var tr = $('<tr>');
             tr.append('<td>' + beneficiario.CPF + '</td>');
             tr.append('<td>' + beneficiario.Nome + '</td>');
-            tr.append('<td><button class="btn btn-sm btn-primary alterar" data-index="' + index + '">Alterar</button> <button class="btn btn-sm btn-danger excluir" data-index="' + index + '">Excluir</button></td>');
+            tr.append('<td><button class="btn btn-sm btn-primary alterar" data-index="' + index + '">Alterar</button> <button class="btn btn-sm btn-primary excluir" data-index="' + index + '">Excluir</button></td>');
             tbody.append(tr);
         });
     }

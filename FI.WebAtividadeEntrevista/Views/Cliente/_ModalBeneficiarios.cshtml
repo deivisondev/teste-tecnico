@@ -1,9 +1,30 @@
-﻿<div class="modal fade" id="modalBeneficiarios" tabindex="-1" role="dialog" aria-labelledby="modalBeneficiariosLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+﻿<style>
+    .dialogBeneficiarios {
+        width: 100%;
+        max-width: 850px;
+        padding-bottom: 2.5rem;
+    }
+
+    .containerBtnIncluir {
+        border: none;
+        box-shadow: none;
+    }
+
+    .dialogBeneficiarios .modal-body {
+        padding-bottom: 5rem;
+    }
+
+    .containerBtnIncluir button {
+        font-weight: bold;
+        margin-top: -2px;
+    }
+</style>
+<div class="modal fade" id="modalBeneficiarios" tabindex="-1" role="dialog" aria-labelledby="modalBeneficiariosLabel" aria-hidden="true">
+    <div class="modal-dialog dialogBeneficiarios" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="form-group">
-                    <h5 class="modal-title" id="modalBeneficiariosLabel">Beneficiários</h5>
+                    <h4 class="modal-title col-md-5" id="modalBeneficiariosLabel">Beneficiários</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -11,7 +32,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="CPFBeneficiario">CPF:</label>
                             <input type="text" class="form-control" id="CPFBeneficiario" placeholder="Ex.: 010.011.111-00" maxlength="14">
@@ -23,24 +44,27 @@
                             <input type="text" class="form-control" id="NomeBeneficiario" placeholder="Ex.: Maria">
                         </div>
                     </div>
-                    <div>
-                        <button type="button" class="btn btn-success" id="incluirBeneficiario">Incluir</button>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for=""></label>
+                            <div class="form-control containerBtnIncluir">
+                                <button type="button" class="btn btn-success" id="incluirBeneficiario">Incluir</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr>
                 <table class="table" id="tabelaBeneficiarios">
                     <thead>
                         <tr>
-                            <th>CPF</th>
-                            <th>Nome</th>
-                            <th>Ações</th>
+                            <th class="col-md-4">CPF</th>
+                            <th class="col-md-5">Nome</th>
+                            <th class="col-md-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
-            </div>
-            <div class="modal-footer">
             </div>
         </div>
     </div>
